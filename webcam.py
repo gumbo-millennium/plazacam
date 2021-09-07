@@ -130,11 +130,10 @@ while 1:
             continue
 
         print(f"Submitting {device} picture as {name}")
-        files = {'file': open(filePath, 'rb')}
         result = requests.request(
             method='POST',
             url=url,
-            files=files,
+            files={'file': open(filePath, 'rb')},
             data={"_method": "PUT"}
         )
 
