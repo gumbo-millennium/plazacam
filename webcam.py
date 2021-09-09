@@ -117,7 +117,36 @@ def make_photo(device, name) -> None:
     print(f"Saving image {device}")
     pygame.image.save(img, f'dist/{name}.jpg')
 
+def sleep_until_next_minute() -> None:
+    # Sleep until the next minute starts
+    now = datetime.now()
+
+    # Set time to zero and add a minute
+    nextMinute = now.replace(second=0, microsecond=0) + timedelta(minutes=1)
+
+    # Figure out the time to sleep
+    sleepTime = (nextMinute - now).total_seconds()
+
+    # Report back
+    print(f"Sleeping for {sleepTime} seconds")
+
+    # And 😴
+    time.sleep(sleepTime)
+
+firstRun = True
+
 while 1:
+    # Check if we need to run this loop
+    if firstRun:
+        print("Initial run, submitting picture...")
+        firstRun = False
+    else:
+        now = datetime.now()
+        if (now.hour < 7 or now.hour >= 22 or now.weekday() < 5) and now.minute != 7:
+            print("Skipping current run")
+            sleep_until_next_minute()
+            continue
+
     # Render each camera
     for name, device, url in cams:
         try:
@@ -146,25 +175,6 @@ while 1:
         else:
             print(f"Error submitting {name}: {result.status_code} {result.reason}")
 
-    # Sleep until the next minute starts
-    now = datetime.now()
+    print("Run complete")
+    sleep_until_next_minute()
 
-    # Set time to zero and add a minute
-    nextMinute = now.replace(second=0, microsecond=0) + timedelta(minutes=1)
-
-    # Exit the script if the next minute is a full hour
-    if nextMinute.minute == 0:
-        print("Next minute is a full hour, exiting")
-        break
-    #
-    # # Also exit the script if we're before 7 AM, after 10PM or on weekends
-    if nextMinute.hour < 7 or nextMinute.hour >= 22 or nextMinute.weekday() >= 5:
-        print("Next minute is outside of working hours, exiting")
-        break
-
-    # Figure out the time to sleep
-    sleepTime = (nextMinute - now).total_seconds()
-
-    # Report back
-    print(f"Sleeping for {sleepTime} seconds")
-    time.sleep(sleepTime)
