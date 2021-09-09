@@ -11,7 +11,7 @@ from os.path import isfile
 
 # Prep authentication
 if not isfile("cams.json"):
-    print("No cams.json file found, please copy cams.dist.json and change accordingly.")
+    print("ERROR: No cams.json file found, please copy cams.dist.json and change accordingly.")
     exit(1)
 
 # Load file
@@ -29,13 +29,14 @@ for row in json.loads(cameraData):
         (
             row.get("name"),
             row.get("device"),
-            row.get("url")
+            row.get("url"),
+            row.get("config", {})
         ),
     )
 
 # Validate data
 if len(cams) == 0:
-    print("No proper cameras found in cams.json")
+    print("ERROR: No proper cameras found in cams.json")
     exit(1)
 
 # Prep service and cam
@@ -48,8 +49,7 @@ availableCams = pygame.camera.list_cameras()
 # Ensure all devices in cams exist on this device
 for name, device, url in cams:
     if not device in availableCams:
-        print(f"{device} for {name} not found on this device")
-        exit(1)
+        print(f"WARNING: {device} for {name} not found on this device")
 
 # Prep assets
 overlay = pygame.image.load("assets/overlay.png")
@@ -92,11 +92,22 @@ def assign_overlay(surface: Surface, name: str) -> Surface:
 
     return surface
 
-def make_photo(device, name) -> None:
+def make_photo(device: str, name: str, config) -> None:
     try:
         print(f"Opening video capture on {device}")
         cam = pygame.camera.Camera(device, (640, 480))
         cam.start()
+
+        # Apply settings
+        print(f"Applying settings to camera")
+        try:
+            cam.set_controls(
+                hflip=config.get("hflip", False),
+                vflip=config.get("vflip", False),
+                exposure=config.get("exposure", cam.get_controls()["exposure"]),
+            )
+        except:
+            print("WARNING: Failed to apply settings to camera")
 
         print(f"Allow camera to adjust white balance")
         img = cam.get_image()
@@ -131,7 +142,11 @@ def sleep_until_next_minute() -> None:
     print(f"Sleeping for {sleepTime} seconds")
 
     # And 😴
-    time.sleep(sleepTime)
+    try:
+        time.sleep(sleepTime)
+    except KeyboardInterrupt:
+        print("Recieved keyboard interrupt, exiting.")
+        exit(0)
 
 firstRun = True
 
@@ -148,9 +163,9 @@ while 1:
             continue
 
     # Render each camera
-    for name, device, url in cams:
+    for name, device, url, config in cams:
         try:
-            make_photo(device, name)
+            make_photo(device, name, config)
         except Exception as e:
             print(f"Error with {device}: {e}")
             continue

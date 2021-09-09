@@ -6,7 +6,16 @@ These scripts run the Plazacam, which is a Raspberry Pi with two webcams attache
 
 This script is made for Python3, and requires the following packages:
 
-- pygame
+- `pygame`
+- `datetime`
+- `python-dateutil`
+- `opencv-python-headless` (for the display drivers)
+
+It also depends on the following system packages (as available in Pi repos):
+
+- `libsdl2`
+- `libsdl2-image`
+- `libsdl2-ttf`
 
 ### Option A: Configuring cron
 
