@@ -12,7 +12,7 @@
         "device": "/dev/video1",
         "url": "https://example.com/",
         "config": {
-            "exposure": 1
+            "brightness": 1
         }
     }
 ]

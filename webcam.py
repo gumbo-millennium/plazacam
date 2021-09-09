@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 
-import requests, json, time
-import pygame, pygame.camera, pygame.font
+import requests
+import json
+import time
+import pygame
+import pygame.camera
+import pygame.font
 
 # Loose imports
 from datetime import datetime, timedelta
@@ -47,7 +51,7 @@ pygame.camera.init()
 availableCams = pygame.camera.list_cameras()
 
 # Ensure all devices in cams exist on this device
-for name, device, url in cams:
+for name, device, url, options in cams:
     if not device in availableCams:
         print(f"WARNING: {device} for {name} not found on this device")
 
@@ -63,6 +67,8 @@ fontBold = pygame.font.SysFont("Arial", 12, True)
 
 # Add the overlay to the rgb buffer
 # Also write the date and time, and the name of the camera
+
+
 def assign_overlay(surface: Surface, name: str) -> Surface:
     # Add overlay
     surface.blit(overlay, (
@@ -89,10 +95,10 @@ def assign_overlay(surface: Surface, name: str) -> Surface:
         (16, textTop + 18)
     )
 
-
     return surface
 
-def make_photo(device: str, name: str, config) -> None:
+
+def make_photo(device: str, name: str, config: dict) -> None:
     try:
         print(f"Opening video capture on {device}")
         cam = pygame.camera.Camera(device, (640, 480))
@@ -104,10 +110,14 @@ def make_photo(device: str, name: str, config) -> None:
             cam.set_controls(
                 hflip=config.get("hflip", False),
                 vflip=config.get("vflip", False),
-                exposure=config.get("exposure", cam.get_controls()["exposure"]),
+                brightness=config.get("brightness", 0),
             )
-        except:
+
+            print(f"Set settings: {config}")
+            print(f"Current settings: {cam.get_controls()}")
+        except Exception as e:
             print("WARNING: Failed to apply settings to camera")
+            print(f"         {e}")
 
         print(f"Allow camera to adjust white balance")
         img = cam.get_image()
@@ -128,6 +138,7 @@ def make_photo(device: str, name: str, config) -> None:
     print(f"Saving image {device}")
     pygame.image.save(img, f'dist/{name}.jpg')
 
+
 def sleep_until_next_minute() -> None:
     # Sleep until the next minute starts
     now = datetime.now()
@@ -147,6 +158,7 @@ def sleep_until_next_minute() -> None:
     except KeyboardInterrupt:
         print("Recieved keyboard interrupt, exiting.")
         exit(0)
+
 
 firstRun = True
 
@@ -171,7 +183,7 @@ while 1:
             continue
 
     # Submit each photo
-    for name, device, url in cams:
+    for name, device, url, config in cams:
         filePath = f'dist/{name}.jpg'
         if not isfile(filePath):
             print(f"No image found for {name}")
@@ -192,4 +204,3 @@ while 1:
 
     print("Run complete")
     sleep_until_next_minute()
-
