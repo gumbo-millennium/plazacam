@@ -98,6 +98,10 @@ def make_photo(device, name) -> None:
         cam = pygame.camera.Camera(device, (640, 480))
         cam.start()
 
+        print(f"Allow camera to adjust white balance")
+        img = cam.get_image()
+        time.sleep(1)
+
         print(f"Capturing image from {device}")
         img = cam.get_image()
 
