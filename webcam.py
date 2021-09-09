@@ -3,7 +3,6 @@
 import requests
 import json
 import time
-import pygame
 import pygame.camera
 import pygame.font
 
@@ -44,8 +43,8 @@ if len(cams) == 0:
     exit(1)
 
 # Prep service and cam
-pygame.init()
 pygame.camera.init()
+pygame.font.init()
 
 # Get cameras
 availableCams = pygame.camera.list_cameras()
