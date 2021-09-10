@@ -1,0 +1,13 @@
+{
+    "name": "@gumbo-millennium/plazacam",
+    "description": "These scripts run the Plazacam, which is a Raspberry Pi with two webcams attached.",
+    "license": "MIT",
+    "homepage": "https://github.com/gumbo-millennium/plazacam#readme",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "axios": "^0.21.4",
+        "node-webcam": "^0.8.0"
+    }
+}
