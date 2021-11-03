@@ -2,17 +2,11 @@
     {
         "name": "Plazacam",
         "device": "/dev/video0",
-        "url": "https://example.com/",
-        "config": {
-            "hflip": true
-        }
+        "url": "https://example.com/"
     },
     {
         "name": "Koffiecam",
         "device": "/dev/video1",
-        "url": "https://example.com/",
-        "config": {
-            "brightness": 1
-        }
+        "url": "https://example.com/"
     }
 ]
