@@ -3,10 +3,7 @@ package nu.gumbo;
 /**
  * Hello world!
  */
-public final class App {
-    private App() {
-    }
-
+public final class Application {
     /**
      * Says hello to the world.
      * @param args The arguments of the program.
