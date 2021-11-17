@@ -1,0 +1,24 @@
+@startuml Class diagram (suggestion)
+
+class App {
+    {static} Clock clock
+    {static} Webcam[] cams
+    {static} void +main()
+    {static} void +tick()
+}
+
+class Webcam {
+    String -socket
+    resource -webcam
+    String -name
+    String -submitUrl
+
+    void +capture()
+    String #makePhoto()
+    String #overlayPhoto(String path)
+    bool #submitPhoto(String path)
+}
+
+App O-- Webcam
+
+@enduml
