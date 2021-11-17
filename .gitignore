@@ -1,6 +1,6 @@
 /dist/
 /webcam-*.png
-/cams.json
+/assets/cams.json
 /.settings
 
 # Created by https://gitignore.io/api/java,intellij,maven
