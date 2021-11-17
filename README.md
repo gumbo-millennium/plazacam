@@ -21,7 +21,7 @@ Below is an example class diagram. A `resource` is the reference to the
 webcam, initialised from the given socket. It's probably better to
 acquire this resource beforehand, instead of on-demand.
 
-![Class diagram](./diagram.svg)
+![Class diagram](./docs/diagram.svg)
 
 ## Installing
 
