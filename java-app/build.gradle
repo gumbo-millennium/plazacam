@@ -1,4 +1,6 @@
 plugins {
+    // Apply the Java plugin
+    id 'java'
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
     // Apply the Maven Publishing plugin to publish the CLI application to Maven.
@@ -6,6 +8,9 @@ plugins {
     // Apply the Lombok plugin to generate Lombok-annotated classes.
     id "io.freefair.lombok" version "6.5.0.2"
 }
+
+group = 'nl.gumbomillennium'
+sourceCompatibility = '11'
 
 repositories {
     // Use Maven Central for resolving dependencies.
