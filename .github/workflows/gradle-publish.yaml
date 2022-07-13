@@ -16,6 +16,7 @@ on:
   release:
     types:
       - created
+      - published
 
 jobs:
   build:
@@ -52,7 +53,7 @@ jobs:
 
     # Release the package as a build artifact, if it's not an actual release.
     - name: Upload build package
-      if: ${{ github.event.event != 'release' }}
+      if: ${{ github.event_name != 'release' }}
       uses: actions/upload-artifact@v3
       with:
         name: plazacam.jar
@@ -61,7 +62,7 @@ jobs:
 
     # Release the package to GitHub packages, if it's an actual release.
     - name: Publish to GitHub Packages (only on release)
-      if: ${{ github.event.event == 'release' }}
+      if: ${{ github.event_name == 'release' }}
       uses: gradle/gradle-build-action@v2
       with:
         arguments: publish
@@ -69,3 +70,14 @@ jobs:
       env:
         USERNAME: ${{ github.actor }}
         TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Rename result asset
+      if: ${{ github.event_name == 'release' }}
+      run: cp "java-app/app/build/libs/app.jar" "java-app/app/build/libs/plazacam-${{ github.event.release.tag_name }}.jar"
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: ${{ github.event_name == 'release' }}
+      with:
+        fail_on_unmatched_files: true
+        files: java-app/app/build/libs/plazacam-${{ github.event.release.tag_name }}.jar
