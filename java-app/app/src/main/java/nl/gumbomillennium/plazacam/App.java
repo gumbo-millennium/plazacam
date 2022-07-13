@@ -16,7 +16,7 @@ public class App implements Runnable {
   private UploadController uploadController;
 
   public void loadConfig(String directory) {
-    var configPath = Paths.get(directory, ".plazacam-config.json");
+    var configPath = Paths.get(directory, "config.json");
     var configController = new ConfigController(configPath.toFile());
 
     this.config = configController.getConfig();

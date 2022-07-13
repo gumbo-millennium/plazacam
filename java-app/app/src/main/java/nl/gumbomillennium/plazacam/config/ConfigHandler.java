@@ -29,9 +29,12 @@ public class ConfigHandler {
             .create();
   }
 
-  public void writeConfig(Config config, File file) throws ConfigurationException {
-    var jsonContents = this.parser.toJson(config);
+  public String configToString(Config config) {
+    return this.parser.toJson(config);
+  }
 
+  public void writeConfig(Config config, File file) throws ConfigurationException {
+    var jsonContents = configToString(config);
     try {
       Files.writeString(file.toPath(), jsonContents);
     } catch (IOException exception) {
@@ -118,7 +121,7 @@ public class ConfigHandler {
         System.err.println("Webcam lookup was cancelled");
         return new String[0];
       } catch (ExecutionException | TimeoutException exception) {
-        log.debug("Dropping webcam {}, likely invalid.", device, exception);
+        log.debug("Dropping webcam {}, likely invalid.", device);
         // Webcam probably invalid
       }
     }
