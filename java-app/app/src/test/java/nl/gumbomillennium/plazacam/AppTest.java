@@ -10,17 +10,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class AppTest {
 
   @Test void appClassConfiguresConfig() {
-    boolean shouldRun = false;
-    if (shouldRun) {
-
-        App appUnderTest = new App();
-
-        appUnderTest.loadConfig();
-
-        var config = appUnderTest.getConfig();
-
-        // Just ensure it works
-        assertInstanceOf(Config.class, config);
-      }
-    }
+    // noop
+  }
 }
