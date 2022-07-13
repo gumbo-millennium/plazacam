@@ -1,0 +1,2 @@
+# SVGs are minified, treat as binary
+*.svg -text -diff merge=binary

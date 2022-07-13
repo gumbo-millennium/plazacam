@@ -1,24 +1,53 @@
 @startuml Class diagram (suggestion)
 
-class App {
-    {static} Clock clock
-    {static} Webcam[] cams
-    {static} void +main()
-    {static} void +tick()
+package nl.gumbomillennium.plazacam {
+    class App {
+        {static} +void main()
+        -Clock clock
+        -ConfigController ConfigController
+        -WebcamController webcamController
+        -UploadController uploadController
+        +void tick()
+    }
+
+    class ConfigController {
+        -Config config
+        +Config getConfig()
+    }
+
+    class Config {
+        +boolean isDefault
+        +int captureIntervalInMinutes
+        +String deviceName
+        +String[] cameras
+        {static} +Config getDefaultConfig()
+        {static} +Config getConfigFromFile(String fileName)
+    }
+
+    class WebcamController {
+        -Webcam[] webcams
+        +void addCamera(String camera)
+        +CompletableFuture<CharSequence[]> takePhoto()
+    }
+
+    class Webcam {
+        -VideoCapture capture
+        +CompletableFuture<CharSequence> getPhoto()
+    }
+
+    class UploadController {
+        {static} -String uploadUrl
+        -String accessToken
+        +CompletableFuture<void> upload(CharSequence image)
+        +CompletableFuture<void> upload(CharSequence[] image)
+    }
 }
 
-class Webcam {
-    String -socket
-    resource -webcam
-    String -name
-    String -submitUrl
-
-    void +capture()
-    String #makePhoto()
-    String #overlayPhoto(String path)
-    bool #submitPhoto(String path)
-}
-
-App O-- Webcam
+' Relations
+App *-- WebcamController
+App *-- ConfigController
+App *-- UploadController
+WebcamController *-- Webcam
+ConfigController *-- Config
 
 @enduml

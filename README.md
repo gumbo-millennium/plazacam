@@ -11,11 +11,23 @@ Licensed under [the MIT license](./LICENSE.md).
 
 ## Architecture
 
-- A main method keeping track of the time and issuing a `makePhoto` call to the Webcam instances.
-  - One or more `Webcam` instances, with three main objectives
-    1. Making a photo on demand
-    2. Processing that photo and adding some overlays
-    3. Upload the photo via an HTTP request
+- The main `App` class
+  - Keeps a single `ConfigController`, `CameraController` and `UploadController`
+  - Asks the `CameraController` to create cameras based on the config
+  - Asks the `CameraController` to make photos once every now and then
+  - Uploads created photo using the `UploadController`
+- The `ConfigController` class
+  - Loads the config from a file, or writes a default config to a file if none exists
+  - Translates configs to proper values
+- The `CameraController` class
+  - Keeps track of `CameraHandle` instances
+  - Can be asked to create a number of cameras
+  - Can be asked to produce a set of photos
+- The `UploadController` class
+  - Connects to a server and uploads JPEG files
+- The `CameraHandle` class
+  - Connects and controls a single connected camera
+  - Can be asked to make a photo, returning a JPEG image
 
 Below is an example class diagram. A `resource` is the reference to the
 webcam, initialised from the given socket. It's probably better to

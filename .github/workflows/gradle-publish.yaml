@@ -1,0 +1,71 @@
+# This workflow uses actions that are not certified by GitHub.  They are
+# provided by a third-party and are governed by separate terms of service,
+# privacy policy, and support documentation.
+# This workflow will build a package using Gradle and then publish it to GitHub
+# packages when a release is created For more information see:
+# https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#Publishing-using-gradle
+
+name: Gradle Package
+
+on:
+  pull_request:
+  push:
+    branches:
+      - develop
+      - main
+  release:
+    types:
+      - created
+
+jobs:
+  build:
+    name: Build Gradle Package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout application
+      uses: actions/checkout@v3
+
+    - name: Setup Java 11
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: 11
+
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+      with:
+        build-root-directory: java-app
+
+    - name: Execute Gradle build
+      run: ./gradlew build --scan --no-daemon
+      working-directory: java-app
+
+    - name: Upload build reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-reports
+        path: java-app/app/build/reports/
+
+    # Release the package as a build artifact, if it's not an actual release.
+    - name: Upload build package
+      if: ${{ github.event.event != 'release' }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: plazacam.jar
+        path: java-app/app/build/libs/app.jar
+        retention-days: 7
+
+    # Release the package to GitHub packages, if it's an actual release.
+    - name: Publish to GitHub Packages (only on release)
+      if: ${{ github.event.event == 'release' }}
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: publish
+        build-root-directory: java-app
+      env:
+        USERNAME: ${{ github.actor }}
+        TOKEN: ${{ secrets.GITHUB_TOKEN }}
