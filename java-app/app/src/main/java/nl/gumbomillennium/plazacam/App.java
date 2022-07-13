@@ -4,57 +4,53 @@
 package nl.gumbomillennium.plazacam;
 
 import java.nio.file.Paths;
-import java.time.Clock;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
+import nl.gumbomillennium.plazacam.config.Config;
 
+@Slf4j
 public class App implements Runnable {
-  static {
-    System.loadLibrary(org.opencv.core.Core.NATIVE_LIBRARY_NAME);
-  }
-
   private Config config;
   private WebcamController webcamController;
   private UploadController uploadController;
 
-  public static void main(String[] args) {
-    var app = new App();
-    app.loadConfig();
-    app.registerWebcam();
-    app.registerUploader();
-    app.start();
-  }
-
-  private void loadConfig() {
-    var homeDirectory = System.getProperty("user.home");
-    var configPath = Paths.get(homeDirectory, ".plazacam-config.json");
+  public void loadConfig(String directory) {
+    var configPath = Paths.get(directory, ".plazacam-config.json");
     var configController = new ConfigController(configPath.toFile());
 
     this.config = configController.getConfig();
 
-    System.out.println("Config loaded");
-    System.out.println("Device name: " + config.deviceName);
-    System.out.println("Capture interval: " + config.captureIntervalInMinutes + " minutes");
-    System.out.println(
-        "Cameras: " + Arrays.stream(config.cameras).reduce("", (a, b) -> a + ", " + b));
+    log.debug("Configuration loaded: {}", this.config);
   }
 
-  private void registerWebcam() {
+  public Config getConfig() {
+    return config;
+  }
+
+  public CompletableFuture<Void> registerWebcams() {
     this.webcamController = new WebcamController();
 
+    var registeredPromises = new ArrayList<CompletableFuture<Void>>();
+
     for (var camera : config.cameras) {
-      this.webcamController.registerWebcam(camera);
+      registeredPromises.add(this.webcamController.registerWebcam(camera));
     }
 
-    System.out.println("Webcams registered");
+    return CompletableFuture.allOf(registeredPromises.toArray(new CompletableFuture[0]));
   }
 
-  private void registerUploader() {
-    this.uploadController = new UploadController(config.deviceName);
+  public void registerUploader(String directory) {
+    this.uploadController =
+        new UploadController(directory, config.deviceName, config.uploadUrl, config.accessToken);
+  }
 
-    System.out.println("Uploader registered");
+  protected CompletableFuture<Image[]> getAllPhotos() {
+    return webcamController.capture();
+  }
+
+  protected CompletableFuture<Void> uploadAllPhotos(Image[] photos) {
+    return uploadController.upload(photos);
   }
 
   @Override
@@ -73,25 +69,5 @@ public class App implements Runnable {
             () -> {
               System.out.println("Photos uploaded");
             });
-  }
-
-  private CompletableFuture<CharSequence[]> getAllPhotos() {
-    return webcamController.capture();
-  }
-
-  private CompletableFuture<Void> uploadAllPhotos(CharSequence[] photos) {
-    return uploadController.upload(photos);
-  }
-
-  private void start() {
-    System.out.println("System starting");
-
-    // Start a scheduler on a single thread
-    var captureExecutor = Executors.newSingleThreadScheduledExecutor();
-
-    // Schedule the task to run every X minutes
-    captureExecutor.scheduleAtFixedRate(this, 0, config.captureIntervalInMinutes, TimeUnit.MINUTES);
-
-    System.out.println("Upload controller started");
   }
 }

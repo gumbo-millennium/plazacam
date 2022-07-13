@@ -3,12 +3,24 @@
  */
 package nl.gumbomillennium.plazacam;
 
+import nl.gumbomillennium.plazacam.config.Config;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class AppTest {
-    @Test void appHasAGreeting() {
-        App classUnderTest = new App();
-        assertNotNull(classUnderTest.getGreeting(), "app should have a greeting");
+
+  @Test void appClassConfiguresConfig() {
+    boolean shouldRun = false;
+    if (shouldRun) {
+
+        App appUnderTest = new App();
+
+        appUnderTest.loadConfig();
+
+        var config = appUnderTest.getConfig();
+
+        // Just ensure it works
+        assertInstanceOf(Config.class, config);
+      }
     }
 }

@@ -1,61 +1,45 @@
 package nl.gumbomillennium.plazacam;
-import com.google.gson.Gson;
+
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
+import javax.naming.ConfigurationException;
+import lombok.extern.slf4j.Slf4j;
+import nl.gumbomillennium.plazacam.config.Config;
+import nl.gumbomillennium.plazacam.config.ConfigHandler;
 
-public
-class ConfigController {
-    private final Config config;
+@Slf4j
+public class ConfigController {
+  private final Config config;
 
-    public ConfigController(String path) {
-        this.config = this.readOrCreateConfig(path);
+  public ConfigController(File file) {
+    this.config = this.readOrCreateConfig(file);
+  }
+
+  private Config readOrCreateConfig(File file) {
+    var handler = new ConfigHandler();
+
+    // Create default config if no file exists
+    if (!file.exists()) {
+      log.info("No config file seems to exist, writing a new one");
+      var defaultConfig = handler.buildDefaultConfig();
+
+      try {
+        handler.writeConfig(defaultConfig, file);
+      } catch (ConfigurationException exception) {
+        log.warn("Failed to write default config", exception);
+        throw new RuntimeException("Failed to write default config", exception);
+      }
     }
 
-    public ConfigController(File file) {
-        this.config = this.readOrCreateConfig(file.getAbsolutePath());
+    // Read the config
+    try {
+      return handler.readConfig(file);
+    } catch (ConfigurationException exception) {
+      log.warn("Failed to read config", exception);
+      throw new RuntimeException("Failed to read config", exception);
     }
+  }
 
-    private Config readOrCreateConfig(String path) {
-        // Check if file exists
-        var file = new File(path);
-        var config = Config.buildDefault();
-
-        if (file.exists()) {
-            config = Config.buildFromJsonFile(file);
-        }
-
-        if (config.isDefault) {
-            System.out.println("WARNING: Using a generated default config");
-
-            try {
-                Files.writeString(
-                    file.toPath(),
-                    new Gson().toJson(config)
-                );
-                System.out.println("Wrote default config to " + file.getAbsolutePath());
-
-            } catch (IOException exception) {
-                System.err.println("Failed to write default config file! " + exception.getMessage());
-            }
-        }
-
-        return config;
-    }
-
-    public Config getConfig() {
-        return this.config;
-    }
-
-    public int getCaptureIntervalInMinutes() {
-        return this.config.captureIntervalInMinutes;
-    }
-
-    public String getDeviceName() {
-        return this.config.deviceName;
-    }
-
-    public String[] getCameras() {
-        return this.config.cameras;
-    }
+  public Config getConfig() {
+    return this.config;
+  }
 }
