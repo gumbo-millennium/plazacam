@@ -3,12 +3,95 @@
  */
 package nl.gumbomillennium.plazacam;
 
-public class App {
-    public String getGreeting() {
-        return "Hello World!";
+import java.nio.file.Paths;
+import java.time.Clock;
+import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+public class App implements Runnable {
+  static {
+    System.loadLibrary(org.opencv.core.Core.NATIVE_LIBRARY_NAME);
+  }
+
+  private Config config;
+  private WebcamController webcamController;
+  private UploadController uploadController;
+
+  public static void main(String[] args) {
+    var app = new App();
+    app.loadConfig();
+    app.registerWebcam();
+    app.registerUploader();
+    app.start();
+  }
+
+  private void loadConfig() {
+    var homeDirectory = System.getProperty("user.home");
+    var configPath = Paths.get(homeDirectory, ".plazacam-config.json");
+    var configController = new ConfigController(configPath.toFile());
+
+    this.config = configController.getConfig();
+
+    System.out.println("Config loaded");
+    System.out.println("Device name: " + config.deviceName);
+    System.out.println("Capture interval: " + config.captureIntervalInMinutes + " minutes");
+    System.out.println(
+        "Cameras: " + Arrays.stream(config.cameras).reduce("", (a, b) -> a + ", " + b));
+  }
+
+  private void registerWebcam() {
+    this.webcamController = new WebcamController();
+
+    for (var camera : config.cameras) {
+      this.webcamController.registerWebcam(camera);
     }
 
-    public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
-    }
+    System.out.println("Webcams registered");
+  }
+
+  private void registerUploader() {
+    this.uploadController = new UploadController(config.deviceName);
+
+    System.out.println("Uploader registered");
+  }
+
+  @Override
+  public void run() {
+    System.out.println("Capturing photos");
+    var future = getAllPhotos();
+
+    future.thenRun(
+        () -> {
+          System.out.println("Photos captured");
+        });
+
+    future
+        .thenCompose(this::uploadAllPhotos)
+        .thenRun(
+            () -> {
+              System.out.println("Photos uploaded");
+            });
+  }
+
+  private CompletableFuture<CharSequence[]> getAllPhotos() {
+    return webcamController.capture();
+  }
+
+  private CompletableFuture<Void> uploadAllPhotos(CharSequence[] photos) {
+    return uploadController.upload(photos);
+  }
+
+  private void start() {
+    System.out.println("System starting");
+
+    // Start a scheduler on a single thread
+    var captureExecutor = Executors.newSingleThreadScheduledExecutor();
+
+    // Schedule the task to run every X minutes
+    captureExecutor.scheduleAtFixedRate(this, 0, config.captureIntervalInMinutes, TimeUnit.MINUTES);
+
+    System.out.println("Upload controller started");
+  }
 }
