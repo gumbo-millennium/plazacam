@@ -19,11 +19,11 @@ public class ConfigController {
 
     // Create default config if no file exists
     if (!file.exists()) {
-      log.info("No config file seems to exist, writing a new one");
       var defaultConfig = handler.buildDefaultConfig();
 
       try {
         handler.writeConfig(defaultConfig, file);
+        log.info("Wrote default config file to {}", file.getAbsolutePath());
       } catch (ConfigurationException exception) {
         log.warn("Failed to write default config", exception);
         throw new RuntimeException("Failed to write default config", exception);

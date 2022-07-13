@@ -3,13 +3,12 @@
  */
 package nl.gumbomillennium.plazacam;
 
-import nl.gumbomillennium.plazacam.config.Config;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 class AppTest {
 
-  @Test void appClassConfiguresConfig() {
+  @Test
+  void appClassConfiguresConfig() {
     // noop
   }
 }

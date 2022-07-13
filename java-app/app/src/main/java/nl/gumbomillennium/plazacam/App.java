@@ -16,12 +16,15 @@ public class App implements Runnable {
   private UploadController uploadController;
 
   public void loadConfig(String directory) {
-    var configPath = Paths.get(directory, ".plazacam-config.json");
+    var configPath = Paths.get(directory, "config.json");
     var configController = new ConfigController(configPath.toFile());
 
     this.config = configController.getConfig();
 
-    log.debug("Configuration loaded: {}", this.config);
+    log.debug(
+        "Configuration loaded, using device name {} and cameras {}",
+        this.config.deviceName,
+        this.config.cameras);
   }
 
   public Config getConfig() {

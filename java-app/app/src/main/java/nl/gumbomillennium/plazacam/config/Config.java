@@ -46,4 +46,9 @@ public class Config {
     this.uploadUrl = uploadUrl;
     this.accessToken = accessToken;
   }
+
+  @Override
+  public String toString() {
+    return new ConfigHandler().configToString(this);
+  }
 }
