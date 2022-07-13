@@ -48,7 +48,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: build-reports
-        path: java-app/app/build/reports/
+        path: java-app/build/reports/
 
     # Release the package as a build artifact, if it's not an actual release.
     - name: Upload build package
@@ -56,13 +56,13 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: plazacam.jar
-        path: java-app/app/build/libs/app.jar
+        path: java-app/build/libs/app.jar
         retention-days: 7
 
     # Copy the release to a filename to attach to our release
     - name: Rename result asset
       if: ${{ github.event_name == 'release' }}
-      run: cp "java-app/app/build/libs/app.jar" "java-app/app/build/libs/plazacam-${{ github.event.release.tag_name }}.jar"
+      run: cp "java-app/build/libs/app.jar" "java-app/build/libs/plazacam-${{ github.event.release.tag_name }}.jar"
 
     # Attach the file to the release
     - name: Attach build to release
@@ -70,7 +70,7 @@ jobs:
       if: ${{ github.event_name == 'release' }}
       with:
         fail_on_unmatched_files: true
-        files: java-app/app/build/libs/plazacam-${{ github.event.release.tag_name }}.jar
+        files: java-app/build/libs/plazacam-${{ github.event.release.tag_name }}.jar
 
     # Build the package again, but for GitHub Packages
     - name: Publish to GitHub Packages (only on release)
