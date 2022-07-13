@@ -37,18 +37,15 @@ jobs:
 
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
-      with:
-        build-root-directory: java-app
 
     - name: Execute Gradle build
       run: ./gradlew build --scan --no-daemon
-      working-directory: java-app
 
     - name: Upload build reports
       uses: actions/upload-artifact@v3
       with:
         name: build-reports
-        path: java-app/build/reports/
+        path: build/reports/
 
     # Release the package as a build artifact, if it's not an actual release.
     - name: Upload build package
@@ -56,13 +53,13 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: plazacam.jar
-        path: java-app/build/libs/app.jar
+        path: build/libs/plazacam.jar
         retention-days: 7
 
     # Copy the release to a filename to attach to our release
     - name: Rename result asset
       if: ${{ github.event_name == 'release' }}
-      run: cp "java-app/build/libs/app.jar" "java-app/build/libs/plazacam-${{ github.event.release.tag_name }}.jar"
+      run: cp "build/libs/plazacam.jar" "build/libs/plazacam-${{ github.event.release.tag_name }}.jar"
 
     # Attach the file to the release
     - name: Attach build to release
@@ -70,7 +67,7 @@ jobs:
       if: ${{ github.event_name == 'release' }}
       with:
         fail_on_unmatched_files: true
-        files: java-app/build/libs/plazacam-${{ github.event.release.tag_name }}.jar
+        files: build/libs/plazacam-${{ github.event.release.tag_name }}.jar
 
     # Build the package again, but for GitHub Packages
     - name: Publish to GitHub Packages (only on release)
@@ -78,7 +75,6 @@ jobs:
       uses: gradle/gradle-build-action@v2
       with:
         arguments: publish -Pversion=${{ github.event.release.tag_name }}
-        build-root-directory: java-app
       env:
         USERNAME: ${{ github.actor }}
         TOKEN: ${{ secrets.GITHUB_TOKEN }}
