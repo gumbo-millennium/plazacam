@@ -59,24 +59,26 @@ jobs:
         path: java-app/app/build/libs/app.jar
         retention-days: 7
 
-    # Release the package to GitHub packages, if it's an actual release.
-    - name: Publish to GitHub Packages (only on release)
-      if: ${{ github.event_name == 'release' }}
-      uses: gradle/gradle-build-action@v2
-      with:
-        arguments: publish
-        build-root-directory: java-app
-      env:
-        USERNAME: ${{ github.actor }}
-        TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+    # Copy the release to a filename to attach to our release
     - name: Rename result asset
       if: ${{ github.event_name == 'release' }}
       run: cp "java-app/app/build/libs/app.jar" "java-app/app/build/libs/plazacam-${{ github.event.release.tag_name }}.jar"
 
+    # Attach the file to the release
     - name: Attach build to release
       uses: softprops/action-gh-release@v1
       if: ${{ github.event_name == 'release' }}
       with:
         fail_on_unmatched_files: true
         files: java-app/app/build/libs/plazacam-${{ github.event.release.tag_name }}.jar
+
+    # Build the package again, but for GitHub Packages
+    - name: Publish to GitHub Packages (only on release)
+      if: ${{ github.event_name == 'release' }}
+      uses: gradle/gradle-build-action@v2
+      with:
+        arguments: publish -Pversion=${{ github.event.release.tag_name }}
+        build-root-directory: java-app
+      env:
+        USERNAME: ${{ github.actor }}
+        TOKEN: ${{ secrets.GITHUB_TOKEN }}
