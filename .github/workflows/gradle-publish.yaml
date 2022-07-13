@@ -22,7 +22,7 @@ jobs:
     name: Build Gradle Package
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
 
     steps:
@@ -74,7 +74,7 @@ jobs:
       if: ${{ github.event_name == 'release' }}
       run: cp "java-app/app/build/libs/app.jar" "java-app/app/build/libs/plazacam-${{ github.event.release.tag_name }}.jar"
 
-    - name: Release
+    - name: Attach build to release
       uses: softprops/action-gh-release@v1
       if: ${{ github.event_name == 'release' }}
       with:
