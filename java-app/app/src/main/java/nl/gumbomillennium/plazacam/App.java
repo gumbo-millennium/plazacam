@@ -21,7 +21,10 @@ public class App implements Runnable {
 
     this.config = configController.getConfig();
 
-    log.debug("Configuration loaded: {}", this.config);
+    log.debug(
+        "Configuration loaded, using device name {} and cameras {}",
+        this.config.deviceName,
+        this.config.cameras);
   }
 
   public Config getConfig() {
