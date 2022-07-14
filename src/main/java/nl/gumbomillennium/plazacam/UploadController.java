@@ -14,14 +14,27 @@ public class UploadController {
   private final String deviceName;
   private final String accessToken;
   private final Path tempDirectory;
+  private final OkHttpClient httpClient;
 
+  /**
+   * Create a new upload controller, most variables should be from the configuration.
+   * @param tempDirectory
+   * @param deviceName
+   * @param uploadUrl
+   * @param accessToken
+   */
   public UploadController(
       String tempDirectory, String deviceName, String uploadUrl, String accessToken) {
+    // Set the props
     this.deviceName = deviceName;
     this.uploadUrl = uploadUrl;
     this.accessToken = accessToken;
     log.info("Uploading as {} to {}", deviceName, uploadUrl);
 
+    // Create the client
+    this.httpClient = OkHttpClient.builder().build();
+
+    // Create temp directory, if not found
     this.tempDirectory = Paths.get(tempDirectory, "temp");
     if (!this.tempDirectory.toFile().exists()) {
       this.tempDirectory.toFile().mkdirs();
@@ -29,6 +42,14 @@ public class UploadController {
     }
   }
 
+  /**
+   * Uploads the given photo to the server.
+   * The upload won't be accessible, unless the device-name-mapping is
+   * registered as belonging to a cam.
+   *
+   * @param photo The photo to upload.
+   * @return A future that will be completed when the upload is complete.
+   */
   public CompletableFuture<Void> upload(Image photo) {
     return CompletableFuture.runAsync(
         () -> {
@@ -48,6 +69,12 @@ public class UploadController {
         });
   }
 
+  /**
+   * Upload all photos in the collection, returning when all uploads
+   * have completed (failed or completed, either way)
+   * @param photos List of photos
+   * @return A future that will be completed when all uploads are finished.
+   */
   public CompletableFuture<Void> upload(Image[] photos) {
     // Keep track of futures
     var futures = new ArrayList<CompletableFuture<Void>>();
@@ -71,6 +98,11 @@ public class UploadController {
             });
   }
 
+  /**
+   * As a debug reason, write the photos to disk for inspection.
+   * Overwrite existing photos, it's not a backup.
+   * @param photo
+   */
   private void doTempStore(Image photo) {
     // Store file on disk
     var sluggedImageName =
@@ -84,14 +116,58 @@ public class UploadController {
     }
   }
 
+  /**
+   * Send the photo to the server. Note that it will not be accessible
+   * unless the device-name-mapping is registered as belonging to a cam
+   * on the server (not neccesarily accessible for us).
+   * @param photo
+   */
   private void doUpload(Image photo) {
+    // Build the body
+    RequestBody requestBody = new MultipartBody.Builder()
+      .setType(MultipartBody.FORM)
+      .addFormDataPart("device", this.deviceName)
+      .addFormDataPart("name", photo.name)
+      .addFormDataPart("photo", "plazacam.jpg",
+          RequestBody.create(MEDIA_TYPE_JPG, photo.photo))
+      .build();
 
-    // Sleep for some random interval to simulate a real upload
-    var random = (int) (Math.random() * 10 * 1000);
-    try {
-      Thread.sleep(random);
-    } catch (InterruptedException exception) {
-      // Eh
+    // Build the request
+    Request request = new Request.Builder()
+        .header("Authorization", "Bearer " + this.accessToken)
+        .header("User-Agent", USER_AGENT)
+        .header("X-Plazacam-Version", )
+        .url(this.uploadUrl)
+        .post(requestBody)
+        .build();
+
+    // Call the server using the multipart body, in a try-with statement
+    // so it gets quickly gc'd
+    try (Response response = httpClient.newCall(request).execute()) {
+      // Expect HTTP 200
+      if (!response.isSuccessful()) {
+        log.warn("Failed to upload photo: {}", response.message());
+        throw new RuntimeException("Unexpected code " + response);
+        return;
+      }
+
+      // Require an Accepted status code
+      if ( response.code() !== Http.ACCEPTED) {
+        log.warn("Failed to upload photo: {}", response.message());
+        throw new RuntimeException("Unexpected code " + response);
+        return;
+      }
+
+      // DOne
+      log.debug("Upload call of {image} completed", photo.name);
     }
   }
+
+  /**
+   * Get the version of the application
+   * @return
+   */
+  public String getApplicationVersion() {
+    return getClass().getPackage().getImplementationVersion();
+}
 }
