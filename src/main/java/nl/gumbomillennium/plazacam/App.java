@@ -3,11 +3,12 @@
  */
 package nl.gumbomillennium.plazacam;
 
+import lombok.extern.slf4j.Slf4j;
+import nl.gumbomillennium.plazacam.config.Config;
+
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
-import lombok.extern.slf4j.Slf4j;
-import nl.gumbomillennium.plazacam.config.Config;
 
 @Slf4j
 public class App implements Runnable {
@@ -22,9 +23,9 @@ public class App implements Runnable {
     this.config = configController.getConfig();
 
     log.debug(
-        "Configuration loaded, using device name {} and cameras {}",
-        this.config.deviceName,
-        this.config.cameras);
+      "Configuration loaded, using device name {} and cameras {}",
+      this.config.deviceName,
+      this.config.cameras);
   }
 
   public Config getConfig() {
@@ -45,7 +46,7 @@ public class App implements Runnable {
 
   public void registerUploader(String directory) {
     this.uploadController =
-        new UploadController(directory, config.deviceName, config.uploadUrl, config.accessToken);
+      new UploadController(directory, config.deviceName, config.uploadUrl, config.accessToken);
   }
 
   protected CompletableFuture<Image[]> getAllPhotos() {
@@ -62,15 +63,15 @@ public class App implements Runnable {
     var future = getAllPhotos();
 
     future.thenRun(
-        () -> {
-          System.out.println("Photos captured");
-        });
+      () -> {
+        System.out.println("Photos captured");
+      });
 
     future
-        .thenCompose(this::uploadAllPhotos)
-        .thenRun(
-            () -> {
-              System.out.println("Photos uploaded");
-            });
+      .thenCompose(this::uploadAllPhotos)
+      .thenRun(
+        () -> {
+          System.out.println("Photos uploaded");
+        });
   }
 }

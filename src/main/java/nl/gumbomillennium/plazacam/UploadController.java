@@ -1,12 +1,13 @@
 package nl.gumbomillennium.plazacam;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class UploadController {
@@ -18,13 +19,14 @@ public class UploadController {
 
   /**
    * Create a new upload controller, most variables should be from the configuration.
+   *
    * @param tempDirectory
    * @param deviceName
    * @param uploadUrl
    * @param accessToken
    */
   public UploadController(
-      String tempDirectory, String deviceName, String uploadUrl, String accessToken) {
+    String tempDirectory, String deviceName, String uploadUrl, String accessToken) {
     // Set the props
     this.deviceName = deviceName;
     this.uploadUrl = uploadUrl;
@@ -52,26 +54,27 @@ public class UploadController {
    */
   public CompletableFuture<Void> upload(Image photo) {
     return CompletableFuture.runAsync(
-        () -> {
-          // Start tracking the upload
-          var startTime = System.currentTimeMillis();
-          log.info("Uploading photo {} to {}", photo.name, uploadUrl);
+      () -> {
+        // Start tracking the upload
+        var startTime = System.currentTimeMillis();
+        log.info("Uploading photo {} to {}", photo.name, uploadUrl);
 
-          // Store in cache folder
-          doTempStore(photo);
+        // Store in cache folder
+        doTempStore(photo);
 
-          // Perform the actual upload elsewhere
-          doUpload(photo);
+        // Perform the actual upload elsewhere
+        doUpload(photo);
 
-          // Determine duration and report
-          var duration = System.currentTimeMillis() - startTime;
-          log.info("Photo {} uploaded in {} seconds", photo.name, duration / 1000.0);
-        });
+        // Determine duration and report
+        var duration = System.currentTimeMillis() - startTime;
+        log.info("Photo {} uploaded in {} seconds", photo.name, duration / 1000.0);
+      });
   }
 
   /**
    * Upload all photos in the collection, returning when all uploads
    * have completed (failed or completed, either way)
+   *
    * @param photos List of photos
    * @return A future that will be completed when all uploads are finished.
    */
@@ -91,22 +94,23 @@ public class UploadController {
 
     // Wait for all uploads to complete, and report duration
     return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
-        .thenRun(
-            () -> {
-              var duration = System.currentTimeMillis() - startTime;
-              log.info("Uploaded {} photos in {} seconds", futures.size(), duration / 1000.0);
-            });
+      .thenRun(
+        () -> {
+          var duration = System.currentTimeMillis() - startTime;
+          log.info("Uploaded {} photos in {} seconds", futures.size(), duration / 1000.0);
+        });
   }
 
   /**
    * As a debug reason, write the photos to disk for inspection.
    * Overwrite existing photos, it's not a backup.
+   *
    * @param photo
    */
   private void doTempStore(Image photo) {
     // Store file on disk
     var sluggedImageName =
-        photo.name.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
+      photo.name.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
     var filePath = Paths.get(tempDirectory.toString(), sluggedImageName);
 
     try {
@@ -120,6 +124,7 @@ public class UploadController {
    * Send the photo to the server. Note that it will not be accessible
    * unless the device-name-mapping is registered as belonging to a cam
    * on the server (not neccesarily accessible for us).
+   *
    * @param photo
    */
   private void doUpload(Image photo) {
@@ -129,17 +134,17 @@ public class UploadController {
       .addFormDataPart("device", this.deviceName)
       .addFormDataPart("name", photo.name)
       .addFormDataPart("photo", "plazacam.jpg",
-          RequestBody.create(MEDIA_TYPE_JPG, photo.photo))
+        RequestBody.create(MEDIA_TYPE_JPG, photo.photo))
       .build();
 
     // Build the request
     Request request = new Request.Builder()
-        .header("Authorization", "Bearer " + this.accessToken)
-        .header("User-Agent", USER_AGENT)
-        .header("X-Plazacam-Version", )
-        .url(this.uploadUrl)
-        .post(requestBody)
-        .build();
+      .header("Authorization", "Bearer " + this.accessToken)
+      .header("User-Agent", USER_AGENT)
+      .header("X-Plazacam-Version", )
+      .url(this.uploadUrl)
+      .post(requestBody)
+      .build();
 
     // Call the server using the multipart body, in a try-with statement
     // so it gets quickly gc'd
@@ -152,7 +157,7 @@ public class UploadController {
       }
 
       // Require an Accepted status code
-      if ( response.code() !== Http.ACCEPTED) {
+      if (response.code() != = Http.ACCEPTED) {
         log.warn("Failed to upload photo: {}", response.message());
         throw new RuntimeException("Unexpected code " + response);
         return;
@@ -165,9 +170,10 @@ public class UploadController {
 
   /**
    * Get the version of the application
+   *
    * @return
    */
   public String getApplicationVersion() {
     return getClass().getPackage().getImplementationVersion();
-}
+  }
 }

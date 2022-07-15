@@ -1,9 +1,10 @@
 package nl.gumbomillennium.plazacam;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.nio.file.Paths;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Main {
@@ -58,8 +59,8 @@ public class Main {
     // Start a scheduler with the app as scheduled task
     var captureExecutor = Executors.newSingleThreadScheduledExecutor();
     var waitingFuture =
-        captureExecutor.scheduleAtFixedRate(
-            app, 0, app.getConfig().captureIntervalInMinutes, TimeUnit.MINUTES);
+      captureExecutor.scheduleAtFixedRate(
+        app, 0, app.getConfig().captureIntervalInMinutes, TimeUnit.MINUTES);
 
     try {
       waitingFuture.get();

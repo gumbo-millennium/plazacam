@@ -1,9 +1,10 @@
 package nl.gumbomillennium.plazacam;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class WebcamController {
@@ -21,13 +22,13 @@ public class WebcamController {
     future.thenAccept((Void) -> webcams.add(webcam));
 
     future.thenRun(
-        () -> {
-          if (future.isCompletedExceptionally()) {
-            log.warn("Failed to register webcam {}", camera);
-          } else {
-            log.debug("Registered webcam: {}", camera);
-          }
-        });
+      () -> {
+        if (future.isCompletedExceptionally()) {
+          log.warn("Failed to register webcam {}", camera);
+        } else {
+          log.debug("Registered webcam: {}", camera);
+        }
+      });
 
     return future;
   }
@@ -46,19 +47,19 @@ public class WebcamController {
     log.info("Captured {} photos", photoFuturesAsArray.length);
 
     return CompletableFuture.allOf(photoFuturesAsArray)
-        .thenApply(
-            v -> {
-              var photos = new ArrayList<Image>();
+      .thenApply(
+        v -> {
+          var photos = new ArrayList<Image>();
 
-              log.debug("Captured {} photos", photoFuturesAsArray.length);
+          log.debug("Captured {} photos", photoFuturesAsArray.length);
 
-              for (var photoFuture : photoFutures) {
-                photos.add(photoFuture.isCompletedExceptionally() ? null : photoFuture.join());
-              }
+          for (var photoFuture : photoFutures) {
+            photos.add(photoFuture.isCompletedExceptionally() ? null : photoFuture.join());
+          }
 
-              log.debug("Captured {} valid photos", photos.size());
+          log.debug("Captured {} valid photos", photos.size());
 
-              return photos.toArray(new Image[0]);
-            });
+          return photos.toArray(new Image[0]);
+        });
   }
 }

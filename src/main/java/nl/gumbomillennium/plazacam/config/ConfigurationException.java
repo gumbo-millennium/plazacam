@@ -1,3 +1,4 @@
 package nl.gumbomillennium.plazacam.config;
 
-public class ConfigurationException extends RuntimeException {}
+public class ConfigurationException extends RuntimeException {
+}
