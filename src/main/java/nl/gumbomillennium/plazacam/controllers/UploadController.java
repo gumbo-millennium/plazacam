@@ -1,6 +1,9 @@
-package nl.gumbomillennium.plazacam;
+package nl.gumbomillennium.plazacam.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import nl.gumbomillennium.plazacam.App;
+import nl.gumbomillennium.plazacam.models.Image;
+import okhttp3.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,7 +37,7 @@ public class UploadController {
     log.info("Uploading as {} to {}", deviceName, uploadUrl);
 
     // Create the client
-    this.httpClient = OkHttpClient.builder().build();
+    this.httpClient = new OkHttpClient.Builder().build();
 
     // Create temp directory, if not found
     this.tempDirectory = Paths.get(tempDirectory, "temp");
@@ -133,15 +136,14 @@ public class UploadController {
       .setType(MultipartBody.FORM)
       .addFormDataPart("device", this.deviceName)
       .addFormDataPart("name", photo.name)
-      .addFormDataPart("photo", "plazacam.jpg",
-        RequestBody.create(MEDIA_TYPE_JPG, photo.photo))
+      .addFormDataPart("photo", String.format("%s.jpg", photo.name),
+        RequestBody.create(photo.photo.array(), MediaType.get("image/jpeg")))
       .build();
 
     // Build the request
     Request request = new Request.Builder()
       .header("Authorization", "Bearer " + this.accessToken)
-      .header("User-Agent", USER_AGENT)
-      .header("X-Plazacam-Version", )
+      .header("User-Agent", String.format("Plazacam/%s (+https://gumbo-millennium.nl)", App.VERSION))
       .url(this.uploadUrl)
       .post(requestBody)
       .build();
@@ -153,27 +155,18 @@ public class UploadController {
       if (!response.isSuccessful()) {
         log.warn("Failed to upload photo: {}", response.message());
         throw new RuntimeException("Unexpected code " + response);
-        return;
       }
 
       // Require an Accepted status code
-      if (response.code() != = Http.ACCEPTED) {
+      if (response.code() != 202) {
         log.warn("Failed to upload photo: {}", response.message());
         throw new RuntimeException("Unexpected code " + response);
-        return;
       }
 
       // DOne
       log.debug("Upload call of {image} completed", photo.name);
+    } catch (IOException ioException) {
+      log.info("HTTP POST call to {} failed: {}", this.uploadUrl, ioException.getMessage(), ioException);
     }
-  }
-
-  /**
-   * Get the version of the application
-   *
-   * @return
-   */
-  public String getApplicationVersion() {
-    return getClass().getPackage().getImplementationVersion();
   }
 }

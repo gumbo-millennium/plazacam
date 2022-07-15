@@ -1,8 +1,8 @@
-package nl.gumbomillennium.plazacam;
+package nl.gumbomillennium.plazacam.controllers;
 
 import lombok.extern.slf4j.Slf4j;
-import nl.gumbomillennium.plazacam.config.Config;
 import nl.gumbomillennium.plazacam.config.ConfigHandler;
+import nl.gumbomillennium.plazacam.models.Config;
 
 import javax.naming.ConfigurationException;
 import java.io.File;

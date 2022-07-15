@@ -1,7 +1,8 @@
-package nl.gumbomillennium.plazacam.config;
+package nl.gumbomillennium.plazacam.models;
 
 import com.google.gson.annotations.SerializedName;
 import nl.gumbomillennium.plazacam.annotations.IgnoreFromJsonSerialisation;
+import nl.gumbomillennium.plazacam.config.ConfigHandler;
 
 public class Config {
   public static final String DEFAULT_UPLOAD_URL =

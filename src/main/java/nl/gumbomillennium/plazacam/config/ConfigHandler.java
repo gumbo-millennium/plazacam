@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import lombok.extern.slf4j.Slf4j;
-import nl.gumbomillennium.plazacam.Webcam;
+import nl.gumbomillennium.plazacam.controllers.WebcamController;
+import nl.gumbomillennium.plazacam.models.Config;
+import nl.gumbomillennium.plazacam.models.Webcam;
 
 import javax.naming.ConfigurationException;
 import java.io.File;
@@ -112,13 +114,14 @@ public class ConfigHandler {
    */
   protected String[] determineValidWebcams(String[] webcams) {
     var validWebcams = new ArrayList<String>();
+    var webcamController = new WebcamController();
 
     // Determine if all devices are valid devices, synchronously
     for (String device : webcams) {
       var webcam = new Webcam(device);
       try {
-        // Try to connect cameras
-        webcam.connect().get(5L, TimeUnit.SECONDS);
+        // Try to connect cameras, wait for 5 seconds at most
+        webcamController.connect(webcam).get(5L, TimeUnit.SECONDS);
 
         // Webcam valid
         validWebcams.add(device);

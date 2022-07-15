@@ -4,7 +4,11 @@
 package nl.gumbomillennium.plazacam;
 
 import lombok.extern.slf4j.Slf4j;
-import nl.gumbomillennium.plazacam.config.Config;
+import nl.gumbomillennium.plazacam.controllers.ConfigController;
+import nl.gumbomillennium.plazacam.controllers.UploadController;
+import nl.gumbomillennium.plazacam.controllers.WebcamController;
+import nl.gumbomillennium.plazacam.models.Config;
+import nl.gumbomillennium.plazacam.models.Image;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -12,6 +16,8 @@ import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 public class App implements Runnable {
+  public static final Object VERSION = App.class.getPackage().getImplementationVersion();
+
   private Config config;
   private WebcamController webcamController;
   private UploadController uploadController;
