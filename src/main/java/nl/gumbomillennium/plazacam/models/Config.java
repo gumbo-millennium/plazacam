@@ -1,13 +1,15 @@
-package nl.gumbomillennium.plazacam.config;
+package nl.gumbomillennium.plazacam.models;
 
 import com.google.gson.annotations.SerializedName;
 import nl.gumbomillennium.plazacam.annotations.IgnoreFromJsonSerialisation;
+import nl.gumbomillennium.plazacam.config.ConfigHandler;
 
 public class Config {
   public static final String DEFAULT_UPLOAD_URL =
-      "https://www.gumbo-millennium.nl/api/plazacam/upload";
+    "https://www.gumbo-millennium.nl/api/plazacam/upload";
   public static final int DEFAULT_INTERVAL = 5;
-  @IgnoreFromJsonSerialisation public final boolean isDefault;
+  @IgnoreFromJsonSerialisation
+  public final boolean isDefault;
 
   @SerializedName("capture_interval_in_minutes")
   public final int captureIntervalInMinutes;
@@ -33,11 +35,11 @@ public class Config {
   }
 
   public Config(
-      int captureIntervalInMinutes,
-      String deviceName,
-      String[] cameras,
-      String uploadUrl,
-      String accessToken) {
+    int captureIntervalInMinutes,
+    String deviceName,
+    String[] cameras,
+    String uploadUrl,
+    String accessToken) {
     this.isDefault = false;
 
     this.captureIntervalInMinutes = captureIntervalInMinutes;

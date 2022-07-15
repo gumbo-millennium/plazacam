@@ -3,6 +3,12 @@ package nl.gumbomillennium.plazacam.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import lombok.extern.slf4j.Slf4j;
+import nl.gumbomillennium.plazacam.controllers.WebcamController;
+import nl.gumbomillennium.plazacam.models.Config;
+import nl.gumbomillennium.plazacam.models.Webcam;
+
+import javax.naming.ConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,9 +18,6 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import javax.naming.ConfigurationException;
-import lombok.extern.slf4j.Slf4j;
-import nl.gumbomillennium.plazacam.Webcam;
 
 @Slf4j
 public class ConfigHandler {
@@ -22,11 +25,11 @@ public class ConfigHandler {
 
   public ConfigHandler() {
     this.parser =
-        new GsonBuilder()
-            .setExclusionStrategies(new AnnotationExclusionStrategy())
-            .setPrettyPrinting()
-            .serializeNulls()
-            .create();
+      new GsonBuilder()
+        .setExclusionStrategies(new AnnotationExclusionStrategy())
+        .setPrettyPrinting()
+        .serializeNulls()
+        .create();
   }
 
   public String configToString(Config config) {
@@ -66,14 +69,16 @@ public class ConfigHandler {
 
   public Config buildDefaultConfig() {
     return new Config(
-        Config.DEFAULT_INTERVAL,
-        UUID.randomUUID().toString(),
-        determineDefaultWebcams(),
-        Config.DEFAULT_UPLOAD_URL,
-        "");
+      Config.DEFAULT_INTERVAL,
+      UUID.randomUUID().toString(),
+      determineDefaultWebcams(),
+      Config.DEFAULT_UPLOAD_URL,
+      "");
   }
 
-  /** Determines all valid webcams on the system, based on an arbitrary guess */
+  /**
+   * Determines all valid webcams on the system, based on an arbitrary guess
+   */
   public String[] determineDefaultWebcams() {
     var possibleCams = determinePossibleWebcams();
 
@@ -84,7 +89,9 @@ public class ConfigHandler {
     return determineValidWebcams(possibleCams);
   }
 
-  /** Creates a list of possible webcams, which is unchecked except for IO existence. */
+  /**
+   * Creates a list of possible webcams, which is unchecked except for IO existence.
+   */
   protected String[] determinePossibleWebcams() {
     var foundDevices = new ArrayList<String>();
 
@@ -102,16 +109,19 @@ public class ConfigHandler {
     return foundDevices.toArray(new String[0]);
   }
 
-  /** Validates if the given list of webcams is valid, by actually making a connection. */
+  /**
+   * Validates if the given list of webcams is valid, by actually making a connection.
+   */
   protected String[] determineValidWebcams(String[] webcams) {
     var validWebcams = new ArrayList<String>();
+    var webcamController = new WebcamController();
 
     // Determine if all devices are valid devices, synchronously
     for (String device : webcams) {
       var webcam = new Webcam(device);
       try {
-        // Try to connect cameras
-        webcam.connect().get(5L, TimeUnit.SECONDS);
+        // Try to connect cameras, wait for 5 seconds at most
+        webcamController.connect(webcam).get(5L, TimeUnit.SECONDS);
 
         // Webcam valid
         validWebcams.add(device);

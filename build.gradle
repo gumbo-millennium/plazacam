@@ -50,6 +50,9 @@ dependencies {
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.36'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.11'
 
+    // Use OkHttp for HTTP requests
+    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.2.2'
+
     // This dependency is used by the application.
     implementation 'com.google.guava:guava:31.1-jre'
 }

@@ -1,4 +1,4 @@
-package nl.gumbomillennium.plazacam;
+package nl.gumbomillennium.plazacam.models;
 
 import java.nio.ByteBuffer;
 

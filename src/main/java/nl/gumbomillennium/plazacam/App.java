@@ -3,14 +3,21 @@
  */
 package nl.gumbomillennium.plazacam;
 
+import lombok.extern.slf4j.Slf4j;
+import nl.gumbomillennium.plazacam.controllers.ConfigController;
+import nl.gumbomillennium.plazacam.controllers.UploadController;
+import nl.gumbomillennium.plazacam.controllers.WebcamController;
+import nl.gumbomillennium.plazacam.models.Config;
+import nl.gumbomillennium.plazacam.models.Image;
+
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
-import lombok.extern.slf4j.Slf4j;
-import nl.gumbomillennium.plazacam.config.Config;
 
 @Slf4j
 public class App implements Runnable {
+  public static final Object VERSION = App.class.getPackage().getImplementationVersion();
+
   private Config config;
   private WebcamController webcamController;
   private UploadController uploadController;
@@ -22,9 +29,9 @@ public class App implements Runnable {
     this.config = configController.getConfig();
 
     log.debug(
-        "Configuration loaded, using device name {} and cameras {}",
-        this.config.deviceName,
-        this.config.cameras);
+      "Configuration loaded, using device name {} and cameras {}",
+      this.config.deviceName,
+      this.config.cameras);
   }
 
   public Config getConfig() {
@@ -45,7 +52,7 @@ public class App implements Runnable {
 
   public void registerUploader(String directory) {
     this.uploadController =
-        new UploadController(directory, config.deviceName, config.uploadUrl, config.accessToken);
+      new UploadController(directory, config.deviceName, config.uploadUrl, config.accessToken);
   }
 
   protected CompletableFuture<Image[]> getAllPhotos() {
@@ -62,15 +69,15 @@ public class App implements Runnable {
     var future = getAllPhotos();
 
     future.thenRun(
-        () -> {
-          System.out.println("Photos captured");
-        });
+      () -> {
+        System.out.println("Photos captured");
+      });
 
     future
-        .thenCompose(this::uploadAllPhotos)
-        .thenRun(
-            () -> {
-              System.out.println("Photos uploaded");
-            });
+      .thenCompose(this::uploadAllPhotos)
+      .thenRun(
+        () -> {
+          System.out.println("Photos uploaded");
+        });
   }
 }
