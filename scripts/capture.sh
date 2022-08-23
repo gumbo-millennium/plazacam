@@ -2,7 +2,7 @@
 
 set -e
 
-if ! [ -f "$HOME/device-id.txt" -a "$HOME/device-access-token.txt" ]; then
+if ! [ -f "$HOME/device-id.txt" -a -f "$HOME/device-access-token.txt" ]; then
   echo "Missing some required files, please create the following files first:"
   echo " - ~/device-id.txt containing a UUID to identify this file with"
   echo " - ~/device-access-token.txt containing an access token to use to login with"
