@@ -9,6 +9,22 @@ the application is written in Java.
 
 Licensed under [the MIT license](./LICENSE.md).
 
+## Using the basic scripts
+
+To install the basic scripts, run `curl -o- -L https://github.com/gumbo-millennium/plazacam/raw/main/scripts/update.sh | bash -`.  
+This will install an updater an a capture script in your `~/bin` folder.
+
+Then, create the required files:
+ - `~/device-id.txt` containing a UUID to identify this file with
+ - `~/device-access-token.txt` containing an [access token](https://gumbo.nu/mijn-account/api-tokens) to use to login with
+
+Then, schedule it:
+
+```cron
+*/5 * * * ~/bin/capture-plazacam.sh
+22  5 * * ~/bin/update-plazacam.sh
+```
+
 ## Architecture
 
 - The main `App` class
