@@ -12,13 +12,23 @@ curl \
     --output ~/bin/update-plazacam.sh \
     https://github.com/gumbo-millennium/plazacam/raw/main/scripts/update.sh
 
-# Download capture
+# Download capturer
 echo "Downloading capture script"
 curl \
     --fail \
     --location \
-    --output ~/bin/capture-plazacam.sh \
-    https://github.com/gumbo-millennium/plazacam/raw/main/scripts/capture.sh
+    --output ~/bin/do-capture-plazacam.sh \
+    https://github.com/gumbo-millennium/plazacam/raw/main/scripts/do-capture.sh
+
+if [ ! -f ~/bin/capture-plazacam.sh ]; then
+    echo "Downloading capture configuration script"
+    curl \
+        --fail \
+        --location \
+        --output ~/bin/capture-plazacam.sh \
+        https://github.com/gumbo-millennium/plazacam/raw/main/scripts/capture.sh
+fi
+
 
 # Create device ID
 if [ ! -f $HOME/device-id.txt ]; then

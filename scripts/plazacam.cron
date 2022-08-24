@@ -14,8 +14,8 @@ PATH=/usr/local/bin:/bin:/usr/bin
 # *  *  *  *  * user-name command to be executed
 
 # Run every 5 minutes for active hours
-*/5 7-21  * * mon-thu   plazacam /home/plazacam/bin/capture-plazacam.sh > /home/plazacam/capture.log
-*/5 7-18  * * fri       plazacam /home/plazacam/bin/capture-plazacam.sh > /home/plazacam/capture.log
+*/5  7-21 * * mon-thu   plazacam /home/plazacam/bin/capture-plazacam.sh > /home/plazacam/capture.log
+*/5  7-18 * * fri       plazacam /home/plazacam/bin/capture-plazacam.sh > /home/plazacam/capture.log
 
 # Run every hour for off hours
 15  0-6   * * mon-fri  plazacam /home/plazacam/bin/capture-plazacam.sh > /home/plazacam/capture.log
