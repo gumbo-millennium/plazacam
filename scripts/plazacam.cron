@@ -2,7 +2,7 @@
 # vim: set ft=crontab :
 
 SHELL=/bin/sh
-PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+PATH=/usr/local/bin:/bin:/usr/bin
 
 # Example of job definition:
 # .---------------- minute (0 - 59)
